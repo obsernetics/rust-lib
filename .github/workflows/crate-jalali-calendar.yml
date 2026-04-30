@@ -1,0 +1,49 @@
+name: jalali-calendar
+
+# Crate-specific checks for `crates/jalali`. Only runs when this crate
+# (or its workflow file) changes.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/jalali/**"
+      - ".github/workflows/crate-jalali-calendar.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+  pull_request:
+    paths:
+      - "crates/jalali/**"
+      - ".github/workflows/crate-jalali-calendar.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  features:
+    name: Feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build -p jalali-calendar --no-default-features
+      - run: cargo build -p jalali-calendar --no-default-features --features serde
+      - run: cargo build -p jalali-calendar --no-default-features --features chrono
+      - run: cargo build -p jalali-calendar --no-default-features --features timezone
+      - run: cargo build -p jalali-calendar --all-features
+
+  package:
+    name: cargo package (verify publishable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo package -p jalali-calendar

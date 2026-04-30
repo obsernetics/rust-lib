@@ -1,5 +1,8 @@
 name: CI
 
+# Workspace-wide checks. Per-crate concerns (e.g. specific feature
+# combinations) live in `.github/workflows/crate-<name>.yml`.
+
 on:
   push:
     branches: [main]
@@ -33,6 +36,15 @@ jobs:
       - run: cargo test --workspace --all-features --all-targets
       - run: cargo test --workspace --all-features --doc
 
+  no-default-features:
+    name: Build (no default features)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --no-default-features
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -64,16 +76,3 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo bench --workspace --all-features --no-run
-
-  features:
-    name: Feature combinations
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo build -p jalali --no-default-features
-      - run: cargo build -p jalali --no-default-features --features serde
-      - run: cargo build -p jalali --no-default-features --features chrono
-      - run: cargo build -p jalali --no-default-features --features timezone
-      - run: cargo build -p jalali --all-features

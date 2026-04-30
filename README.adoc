@@ -1,15 +1,11 @@
 = rust-lib
-:toc:
 
 image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
 image:https://codecov.io/gh/obsernetics/rust-lib/graph/badge.svg[Coverage,link=https://codecov.io/gh/obsernetics/rust-lib]
 image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License,link=LICENSE]
 image:https://img.shields.io/badge/MSRV-1.75-orange.svg[MSRV]
-image:https://img.shields.io/badge/built%20with-Rust-CE422B.svg?logo=rust[Built with Rust]
-image:https://img.shields.io/github/issues/obsernetics/rust-lib.svg[Open issues,link=https://github.com/obsernetics/rust-lib/issues]
-image:https://img.shields.io/github/stars/obsernetics/rust-lib.svg?style=social[Stars,link=https://github.com/obsernetics/rust-lib/stargazers]
 
-A growing collection of small, practical Rust libraries for developers in Iran.
+A workspace of Rust libraries for developers in Iran.
 
 🇮🇷 link:README.fa.adoc[نسخه‌ی فارسی]
 
@@ -20,38 +16,8 @@ A growing collection of small, practical Rust libraries for developers in Iran.
 | Crate | Description
 
 | link:crates/jalali[`jalali-calendar`]
-| Jalali (Persian / Shamsi) calendar: dates, datetimes, timezones, strftime, parsing, arithmetic, and digit utilities. Imports as `use jalali::*`. See link:crates/jalali/README.adoc[crate readme].
+| Jalali (Persian / Shamsi) calendar — dates, datetimes, timezones, strftime, parsing, arithmetic, digits. Imports as `use jalali::*`.
 |===
-
-More crates are planned (Persian text utilities, number-to-words, RTL helpers, validators for national IDs, etc.). Contributions welcome.
-
-== Documentation
-
-API docs are generated from `///` doc comments via:
-
-[source,bash]
-----
-cargo doc --workspace --no-deps --all-features --open
-----
-
-== Publishing
-
-Each crate publishes independently to crates.io and is auto-built on docs.rs. See link:PUBLISHING.adoc[`PUBLISHING.adoc`] for the checklist.
-
-== Repository
-
-[cols="1,3", options="header"]
-|===
-| What    | Where
-
-| CI                  | link:.github/workflows/ci.yml[`ci.yml`] — tests on Linux/macOS/Windows + MSRV, fmt, clippy, doc-warnings, feature-matrix
-| Coverage            | link:.github/workflows/coverage.yml[`coverage.yml`] — `cargo-llvm-cov`, uploaded to Codecov
-| Renovate            | link:.github/workflows/renovate.yml[`renovate.yml`] + link:renovate.json[`renovate.json`]
-|===
-
-== Contributing
-
-We welcome contributions of any size — new crates, tests, docs, examples. See open issues for ideas.
 
 == License
 
