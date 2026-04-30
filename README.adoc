@@ -13,8 +13,8 @@ A workspace of Rust libraries for developers in Iran.
 |===
 | Crate | Description
 
-| link:crates/jalali[`jalali-calendar`]
-| Jalali (Persian / Shamsi) calendar — dates, datetimes, timezones, strftime, parsing, arithmetic, digits. Imports as `use jalali::*`.
+| link:crates/jalali-calendar[`jalali-calendar`]
+| Jalali (Persian / Shamsi) calendar — dates, datetimes, timezones, strftime, parsing, arithmetic, digits.
 |===
 
 == License

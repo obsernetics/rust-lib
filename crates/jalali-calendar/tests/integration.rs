@@ -1,6 +1,6 @@
 //! Cross-cutting integration tests that exercise multiple modules at once.
 
-use jalali::{is_leap_year, JalaliDate, JalaliDateTime, Season, Weekday};
+use jalali_calendar::{is_leap_year, JalaliDate, JalaliDateTime, Season, Weekday};
 
 #[test]
 fn full_year_round_trip_consistency() {

@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use jalali::JalaliDate;
+use jalali_calendar::JalaliDate;
 
 fn bench_g_to_j(c: &mut Criterion) {
     c.bench_function("gregorian_to_jalali", |b| {

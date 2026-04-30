@@ -7,13 +7,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "crates/jalali/**"
+      - "crates/jalali-calendar/**"
       - ".github/workflows/crate-jalali-calendar.yml"
       - "Cargo.toml"
       - "Cargo.lock"
   pull_request:
     paths:
-      - "crates/jalali/**"
+      - "crates/jalali-calendar/**"
       - ".github/workflows/crate-jalali-calendar.yml"
       - "Cargo.toml"
       - "Cargo.lock"

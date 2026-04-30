@@ -2,7 +2,7 @@
 //!
 //! Run with: `cargo run --example parse_persian_input -p jalali`
 
-use jalali::{digits, JalaliDate};
+use jalali_calendar::{digits, JalaliDate};
 
 fn main() {
     // Form input might arrive with Persian digits and a slash separator.

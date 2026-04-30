@@ -2,7 +2,7 @@
 //!
 //! Run with: `cargo run --example date_arithmetic -p jalali`
 
-use jalali::JalaliDate;
+use jalali_calendar::JalaliDate;
 
 fn main() {
     let nowruz = JalaliDate::new(1403, 1, 1).unwrap();
