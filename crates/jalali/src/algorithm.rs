@@ -42,6 +42,11 @@ pub fn is_leap_year(jy: i32) -> bool {
     next - prev == 1
 }
 
+/// Number of days in a Jalali month.
+///
+/// Returns `31` for Farvardin–Shahrivar (months 1–6), `30` for Mehr–Bahman
+/// (months 7–11), and `30` or `29` for Esfand depending on whether `jy` is a
+/// leap year. Returns `0` for any `m` outside `1..=12`.
 pub fn days_in_month(jy: i32, m: u32) -> u32 {
     match m {
         1..=6 => 31,

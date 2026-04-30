@@ -1,4 +1,10 @@
 //! Timezone-aware Jalali datetime (enable the `timezone` feature).
+//!
+//! Available behind the `timezone` Cargo feature, which pulls in
+//! [`chrono`] and [`chrono_tz`]. [`ZonedJalaliDateTime`] internally stores a
+//! `chrono::DateTime<Tz>` so all of chrono's instant arithmetic is available
+//! via [`ZonedJalaliDateTime::to_datetime`]; the Jalali surface is exposed
+//! through getters that present the local-wall-clock view.
 
 use std::fmt;
 
@@ -7,14 +13,33 @@ use chrono_tz::Tz;
 
 use crate::{Error, JalaliDate, JalaliDateTime, Weekday};
 
-/// Timezone-aware Jalali date and time, anchored to a [`chrono_tz::Tz`].
+/// A Jalali date and time anchored to a specific [`chrono_tz::Tz`].
+///
+/// Construct via [`ZonedJalaliDateTime::new`] (Jalali wall-clock components +
+/// timezone) or [`ZonedJalaliDateTime::now`] (current instant, projected into
+/// the requested zone). Convert between zones with
+/// [`ZonedJalaliDateTime::with_timezone`] — the underlying instant is
+/// preserved.
+///
+/// All getters (`year`, `month`, `day`, `hour`, `minute`, `second`,
+/// `weekday`) return values in the **local** wall-clock view of `self`'s
+/// timezone.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ZonedJalaliDateTime {
     inner: DateTime<Tz>,
 }
 
 impl ZonedJalaliDateTime {
-    /// Construct a zoned datetime from Jalali components and a timezone.
+    /// Construct a zoned datetime from Jalali wall-clock components and a
+    /// timezone.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::InvalidJalaliDate`] / [`Error::InvalidTime`] for
+    ///   out-of-range Jalali or time components.
+    /// - [`Error::InvalidTime`] (re-used) when the local wall-clock time does
+    ///   not unambiguously map to a single instant in the timezone (e.g.
+    ///   skipped or repeated due to DST).
     pub fn new(
         year: i32,
         month: u32,
@@ -44,7 +69,8 @@ impl ZonedJalaliDateTime {
         ZonedJalaliDateTime { inner: in_tz }
     }
 
-    /// Convert this datetime to another timezone, preserving the instant.
+    /// Convert this datetime to another timezone, preserving the underlying
+    /// instant. The returned value's wall-clock components reflect `tz`.
     pub fn with_timezone(&self, tz: Tz) -> Self {
         ZonedJalaliDateTime {
             inner: self.inner.with_timezone(&tz),
@@ -56,51 +82,62 @@ impl ZonedJalaliDateTime {
         self.inner.timezone()
     }
 
-    /// Local Jalali date.
+    /// The local Jalali date (year/month/day) in this datetime's timezone.
     pub fn date(&self) -> JalaliDate {
         let local = self.inner.naive_local().date();
         JalaliDate::from_naive_date(local).expect("valid Gregorian date")
     }
 
-    /// Local Jalali datetime (naive — no timezone attached).
+    /// The naive local datetime in this datetime's timezone — i.e. the
+    /// wall-clock view, with the timezone information stripped.
     pub fn naive_local(&self) -> JalaliDateTime {
         let naive = self.inner.naive_local();
         JalaliDateTime::from_naive_datetime(naive).expect("valid Gregorian datetime")
     }
 
+    /// Local Jalali year.
     pub fn year(&self) -> i32 {
         self.date().year()
     }
+    /// Local Jalali month, in `1..=12`.
     pub fn month(&self) -> u32 {
         self.date().month()
     }
+    /// Local Jalali day of the month.
     pub fn day(&self) -> u32 {
         self.date().day()
     }
+    /// Local hour of day, in `0..=23`.
     pub fn hour(&self) -> u32 {
         self.inner.hour()
     }
+    /// Local minute of hour, in `0..=59`.
     pub fn minute(&self) -> u32 {
         self.inner.minute()
     }
+    /// Local second of minute, in `0..=59`.
     pub fn second(&self) -> u32 {
         self.inner.second()
     }
+    /// Local Persian weekday.
     pub fn weekday(&self) -> Weekday {
         self.date().weekday()
     }
 
-    /// Underlying chrono [`DateTime<Tz>`].
+    /// The underlying chrono [`DateTime<Tz>`]. Use this to plug into the
+    /// rest of the chrono ecosystem (Duration arithmetic, formatting, etc.).
     pub fn to_datetime(&self) -> DateTime<Tz> {
         self.inner
     }
 
+    /// Unix timestamp (seconds since 1970-01-01 UTC) for this instant.
     pub fn to_unix_timestamp(&self) -> i64 {
         self.inner.timestamp()
     }
 }
 
 impl fmt::Display for ZonedJalaliDateTime {
+    /// Formats as `YYYY/MM/DD HH:MM:SS ±HHMM (TZ)`.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let local = self.naive_local();
         write!(f, "{} {}", local, self.inner.format("%z (%Z)"))
@@ -108,6 +145,9 @@ impl fmt::Display for ZonedJalaliDateTime {
 }
 
 impl From<DateTime<Tz>> for ZonedJalaliDateTime {
+    /// Wrap a `chrono::DateTime<Tz>` as a `ZonedJalaliDateTime`. Cheap — no
+    /// conversion is performed up-front; the Jalali view is computed lazily
+    /// in the getters.
     fn from(inner: DateTime<Tz>) -> Self {
         ZonedJalaliDateTime { inner }
     }

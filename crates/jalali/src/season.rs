@@ -6,9 +6,13 @@
 /// Khordad), summer = 4-6, autumn = 7-9, winter = 10-12.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Season {
+    /// بهار — Farvardin, Ordibehesht, Khordad (months 1-3).
     Spring,
+    /// تابستان — Tir, Mordad, Shahrivar (months 4-6).
     Summer,
+    /// پاییز — Mehr, Aban, Azar (months 7-9).
     Autumn,
+    /// زمستان — Dey, Bahman, Esfand (months 10-12).
     Winter,
 }
 
