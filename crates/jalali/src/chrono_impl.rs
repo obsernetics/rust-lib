@@ -31,6 +31,13 @@ impl From<JalaliDate> for NaiveDate {
 }
 
 impl JalaliDateTime {
+    /// Convert from [`chrono::NaiveDateTime`] (Gregorian wall-clock).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidGregorianDate`] / [`Error::InvalidTime`] only
+    /// for components that chrono itself would never produce; in practice
+    /// this is infallible for any value chrono hands you.
     pub fn from_naive_datetime(dt: NaiveDateTime) -> Result<Self, Error> {
         let date = JalaliDate::from_naive_date(dt.date())?;
         JalaliDateTime::with_nanos(
@@ -44,6 +51,9 @@ impl JalaliDateTime {
         )
     }
 
+    /// Convert to [`chrono::NaiveDateTime`].
+    ///
+    /// Preserves nanosecond precision.
     pub fn to_naive_datetime(&self) -> NaiveDateTime {
         let date = self.date().to_naive_date();
         let time = NaiveTime::from_hms_nano_opt(

@@ -3,7 +3,7 @@
 image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
 image:https://codecov.io/gh/obsernetics/rust-lib/graph/badge.svg[Coverage,link=https://codecov.io/gh/obsernetics/rust-lib]
 image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License,link=LICENSE]
-image:https://img.shields.io/badge/MSRV-1.75-orange.svg[MSRV]
+image:https://img.shields.io/badge/MSRV-1.85-orange.svg[MSRV]
 
 A workspace of Rust libraries for developers in Iran.
 

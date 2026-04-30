@@ -111,45 +111,59 @@ impl JalaliDateTime {
             + self.second as i64
     }
 
+    /// The date portion (year/month/day), without the time of day.
     pub fn date(&self) -> JalaliDate {
         self.date
     }
+    /// Jalali year.
     pub fn year(&self) -> i32 {
         self.date.year()
     }
+    /// Jalali month, in `1..=12`.
     pub fn month(&self) -> u32 {
         self.date.month()
     }
+    /// Day of the month.
     pub fn day(&self) -> u32 {
         self.date.day()
     }
+    /// Hour of the day, in `0..=23`.
     pub fn hour(&self) -> u32 {
         self.hour
     }
+    /// Minute of the hour, in `0..=59`.
     pub fn minute(&self) -> u32 {
         self.minute
     }
+    /// Second of the minute, in `0..=59`.
     pub fn second(&self) -> u32 {
         self.second
     }
+    /// Nanosecond component, in `0..=999_999_999`.
     pub fn nanosecond(&self) -> u32 {
         self.nanosecond
     }
+    /// Persian weekday — see [`crate::JalaliDate::weekday`].
     pub fn weekday(&self) -> Weekday {
         self.date.weekday()
     }
+    /// Persian season — see [`crate::JalaliDate::season`].
     pub fn season(&self) -> Season {
         self.date.season()
     }
+    /// Day of year (1-based) — see [`crate::JalaliDate::ordinal`].
     pub fn ordinal(&self) -> u32 {
         self.date.ordinal()
     }
+    /// Week of year (1-based) — see [`crate::JalaliDate::week_of_year`].
     pub fn week_of_year(&self) -> u32 {
         self.date.week_of_year()
     }
+    /// Whether the date's year is a Jalali leap year.
     pub fn is_leap_year(&self) -> bool {
         self.date.is_leap_year()
     }
+    /// Persian name of the month — see [`crate::JalaliDate::month_name`].
     pub fn month_name(&self) -> &'static str {
         self.date.month_name()
     }
@@ -192,6 +206,11 @@ impl JalaliDateTime {
         Self::from_date_time(self.date, hour, minute, second)
     }
 
+    /// Return a copy with the hour replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidTime`] if `hour > 23`.
     pub fn with_hour(&self, hour: u32) -> Result<Self, Error> {
         if hour > 23 {
             return Err(Error::InvalidTime {
@@ -203,6 +222,11 @@ impl JalaliDateTime {
         Ok(JalaliDateTime { hour, ..*self })
     }
 
+    /// Return a copy with the minute replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidTime`] if `minute > 59`.
     pub fn with_minute(&self, minute: u32) -> Result<Self, Error> {
         if minute > 59 {
             return Err(Error::InvalidTime {
@@ -214,6 +238,11 @@ impl JalaliDateTime {
         Ok(JalaliDateTime { minute, ..*self })
     }
 
+    /// Return a copy with the second replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidTime`] if `second > 59`.
     pub fn with_second(&self, second: u32) -> Result<Self, Error> {
         if second > 59 {
             return Err(Error::InvalidTime {
