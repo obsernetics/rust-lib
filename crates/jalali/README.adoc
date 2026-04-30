@@ -1,0 +1,122 @@
+= jalali-calendar
+
+image:https://img.shields.io/crates/v/jalali-calendar.svg[crates.io,link=https://crates.io/crates/jalali-calendar]
+image:https://docs.rs/jalali-calendar/badge.svg[docs.rs,link=https://docs.rs/jalali-calendar]
+image:https://img.shields.io/crates/d/jalali-calendar.svg[Downloads,link=https://crates.io/crates/jalali-calendar]
+image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
+image:https://codecov.io/gh/obsernetics/rust-lib/graph/badge.svg[Coverage,link=https://codecov.io/gh/obsernetics/rust-lib]
+image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License]
+image:https://img.shields.io/badge/MSRV-1.75-orange.svg[MSRV]
+image:https://deps.rs/repo/github/obsernetics/rust-lib/status.svg[Dependencies,link=https://deps.rs/repo/github/obsernetics/rust-lib]
+
+Comprehensive Jalali (Persian / Shamsi) calendar for Rust.
+
+== Features
+
+* `JalaliDate` and `JalaliDateTime` types — naive (no timezone) by default.
+* Conversion to/from Gregorian (`from_gregorian` / `to_gregorian`) — accurate for years 1..3177 AP.
+* Validation via `Result` — no silent errors.
+* Date arithmetic: `add_days`, `add_months` (clamps day-of-month), `add_years`, `add_seconds`.
+* Replace components: `with_year`, `with_month`, `with_day`, `with_hour`, `with_minute`, `with_second`, `with_time`.
+* Helpers: `first_day_of_month`, `last_day_of_month`, `first_day_of_year`, `last_day_of_year`, `first_day_of_season`, `last_day_of_season`.
+* Calendar info: `weekday()`, `season()`, `ordinal()`, `week_of_year()`, `is_leap_year()`, `days_in_this_month()`.
+* Persian month and weekday names (full + abbreviated), season names.
+* `strftime`-style `format()` and `parse_format()` with tokens `%Y %y %m %d %e %j %B %b %A %a %K %H %M %S %T %p %P %%`.
+* Persian, Arabic, and Latin digit conversion (`jalali::digits`).
+* Unix timestamp <-> Jalali (`from_unix_timestamp` / `to_unix_timestamp`).
+* `today()` and `now()` from the system clock.
+* String parsing accepting Persian/Arabic digits and `/` or `-` separators.
+
+=== Optional features
+
+[cols="1,3", options="header"]
+|===
+| Feature    | What it enables
+
+| `serde`    | `Serialize`/`Deserialize` for `JalaliDate`, `JalaliDateTime`, `Weekday`, `Season`.
+| `chrono`   | Interop with `chrono::NaiveDate` and `chrono::NaiveDateTime`.
+| `timezone` | `ZonedJalaliDateTime` built on `chrono-tz` (implies `chrono`).
+| `full`     | All of the above.
+|===
+
+== Quick start
+
+[source,toml]
+----
+[dependencies]
+jalali-calendar = "0.1"
+
+# Or with optional features:
+jalali-calendar = { version = "0.1", features = ["serde", "chrono", "timezone"] }
+# (or "full" to enable all of them)
+----
+
+The library is imported as `jalali`:
+
+[source,rust]
+----
+use jalali::JalaliDate;
+----
+
+[source,rust]
+----
+use jalali::{JalaliDate, JalaliDateTime};
+
+let j = JalaliDate::from_gregorian(2024, 3, 20)?;
+assert_eq!((j.year(), j.month(), j.day()), (1403, 1, 1));
+
+// Persian-digit input parses transparently.
+let parsed: JalaliDate = "۱۴۰۳/۰۱/۰۱".parse()?;
+assert_eq!(parsed, j);
+
+// strftime-style formatting in Persian.
+assert_eq!(j.format("%-d %B %Y (%K)"), "1 فروردین 1403 (بهار)");
+
+// Datetime + arithmetic.
+let dt = JalaliDateTime::new(1403, 1, 1, 12, 0, 0)?;
+let later = dt.add_seconds(3 * 3600 + 30 * 60);
+assert_eq!(later.format("%H:%M"), "15:30");
+
+// Helpers.
+let last = j.last_day_of_year();
+assert_eq!(last.day(), 30); // 1403 is leap
+# Ok::<(), jalali::Error>(())
+----
+
+== Examples
+
+Each runnable example lives in `examples/`:
+
+[cols="1,2", options="header"]
+|===
+| Example                  | What it demonstrates
+
+| `basic_conversion`       | Gregorian ↔ Jalali round trip.
+| `parse_persian_input`    | Parsing Persian-digit input from a UI.
+| `date_arithmetic`        | `add_days`, `days_until`, weekday rollover.
+| `unix_timestamp`         | Unix timestamp ↔ Jalali.
+|===
+
+Run with:
+
+[source,bash]
+----
+cargo run --example basic_conversion -p jalali-calendar
+----
+
+== Benchmarks
+
+[source,bash]
+----
+cargo bench -p jalali-calendar
+----
+
+The `benches/` directory uses `criterion` to measure conversion, arithmetic, format, and parse paths.
+
+== Documentation
+
+Full API documentation is generated from `///` doc comments via `cargo doc --all-features`.
+
+== License
+
+Apache-2.0.

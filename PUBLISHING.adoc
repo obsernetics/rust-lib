@@ -1,0 +1,76 @@
+= Publishing crates from rust-lib
+
+Each crate in `crates/*` is published independently to crates.io. docs.rs auto-builds documentation as soon as a crate is published.
+
+== One-time setup
+
+. Create an account on https://crates.io[crates.io] and verify your email.
+. Generate an API token: https://crates.io/settings/tokens (scope: `publish-update`).
+. Locally:
++
+[source,bash]
+----
+cargo login <YOUR_TOKEN>
+----
+
+== docs.rs requirements (already satisfied)
+
+[cols="1,2", options="header"]
+|===
+| Requirement                                  | Where it's enforced
+
+| Crate published to crates.io                 | `cargo publish` (below)
+| Valid SPDX `license` (or `license-file`)     | `Cargo.toml`: `license = "Apache-2.0"`
+| `description`                                | `Cargo.toml`: present
+| `readme`                                     | `Cargo.toml`: `readme = "README.adoc"`
+| `repository`                                 | inherited from workspace
+| Builds on Linux x86_64 with no network       | verified via `cargo package`
+| Build under 12h / 4 GB RAM / 24 GB disk      | trivially satisfied
+| Optional: `[package.metadata.docs.rs]`       | `all-features = true`, `rustdoc-args = ["--cfg", "docsrs"]`
+| Optional: `rust-version` (MSRV)              | `Cargo.toml`: `rust-version = "1.75"`
+| Optional: `homepage`, `documentation`        | both set
+| Optional: `categories`, `keywords`           | both set, valid against the crates.io taxonomy
+|===
+
+The crate uses `#![cfg_attr(docsrs, feature(doc_cfg))]` so the docs.rs build (which uses nightly + `--cfg docsrs`) automatically annotates feature-gated items. The stable build ignores it.
+
+== Pre-publish checklist
+
+Run this from the workspace root before every release:
+
+[source,bash]
+----
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace --all-features
+RUSTDOCFLAGS='-D warnings' cargo doc --workspace --no-deps --all-features
+cargo package -p <crate-name>     # builds the .crate locally and verifies it
+----
+
+== Publishing a crate
+
+[source,bash]
+----
+# Dry run — uploads nothing, but exercises the full path.
+cargo publish -p <crate-name> --dry-run
+
+# Real publish:
+cargo publish -p <crate-name>
+----
+
+After about 5-10 minutes docs.rs picks up the new version and builds documentation at `https://docs.rs/<crate-name>`.
+
+== Verifying after publish
+
+. Visit `https://crates.io/crates/<crate-name>` — confirm the README, badges, and version render.
+. Visit `https://docs.rs/<crate-name>` — wait for the build and confirm all-features documentation appears.
+. Open a build log if anything fails: `https://docs.rs/crate/<crate-name>/<version>/builds`.
+
+== Yanking a broken release
+
+[source,bash]
+----
+cargo yank --version <X.Y.Z> -p <crate-name>
+----
+
+Yanking does not delete; it prevents new dependents from selecting that version.

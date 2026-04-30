@@ -1,0 +1,35 @@
+= rust-lib
+
+image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
+image:https://codecov.io/gh/obsernetics/rust-lib/graph/badge.svg[Coverage,link=https://codecov.io/gh/obsernetics/rust-lib]
+image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License,link=LICENSE]
+image:https://img.shields.io/badge/MSRV-1.75-orange.svg[MSRV]
+
+مجموعه‌ای رو به رشد از کتابخانه‌های کوچک و کاربردی Rust برای توسعه‌دهندگان ایرانی.
+
+🇬🇧 link:README.adoc[English version]
+
+== کتابخانه‌ها
+
+[cols="1,3", options="header"]
+|===
+| نام | توضیح
+
+| link:crates/jalali[`jalali-calendar`]
+| تقویم جلالی (شمسی): تاریخ، تاریخ-زمان، منطقه‌ی زمانی، قالب‌بندی strftime، تجزیه، محاسبات، و ابزارهای ارقام. (در کد به‌صورت `use jalali::*` ایمپورت می‌شود). به link:crates/jalali/README.adoc[راهنمای کتابخانه] مراجعه کنید.
+|===
+
+کتابخانه‌های بیشتر در راه است (ابزارهای متن فارسی، تبدیل عدد به حروف، کمک‌رسان‌های راست‌چین، اعتبارسنجی کد ملی و ...). از مشارکت شما استقبال می‌کنیم.
+
+== مستندات
+
+مستندات API به‌صورت خودکار از کامنت‌های `///` تولید می‌شود:
+
+[source,bash]
+----
+cargo doc --workspace --no-deps --all-features --open
+----
+
+== مجوز
+
+Apache-2.0. به فایل link:LICENSE[] مراجعه کنید.
