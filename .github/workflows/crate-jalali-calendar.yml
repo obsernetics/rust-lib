@@ -1,7 +1,7 @@
 name: jalali-calendar
 
-# Crate-specific checks for `crates/jalali`. Only runs when this crate
-# (or its workflow file) changes.
+# Crate-specific checks for `crates/jalali-calendar`. Only runs when
+# this crate (or its workflow file) changes.
 
 on:
   push:
