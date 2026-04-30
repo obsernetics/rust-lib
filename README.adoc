@@ -7,8 +7,6 @@ image:https://img.shields.io/badge/MSRV-1.75-orange.svg[MSRV]
 
 A workspace of Rust libraries for developers in Iran.
 
-🇮🇷 link:README.fa.adoc[نسخه‌ی فارسی]
-
 == Crates
 
 [cols="1,3", options="header"]
