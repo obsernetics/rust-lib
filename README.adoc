@@ -9,11 +9,12 @@ A workspace of Rust libraries for developers in Iran.
 
 == Crates
 
-[cols="1,3", options="header"]
+[cols="1,1,3", options="header"]
 |===
-| Crate | Description
+| Crate | Published | Description
 
 | link:crates/jalali-calendar[`jalali-calendar`]
+| image:https://img.shields.io/crates/v/jalali-calendar.svg[crates.io,link=https://crates.io/crates/jalali-calendar] image:https://docs.rs/jalali-calendar/badge.svg[docs.rs,link=https://docs.rs/jalali-calendar]
 | Jalali (Persian / Shamsi) calendar — dates, datetimes, timezones, strftime, parsing, arithmetic, digits.
 |===
 
