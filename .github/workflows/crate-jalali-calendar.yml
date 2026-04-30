@@ -1,19 +1,19 @@
 name: jalali-calendar
 
-# Crate-specific checks for `crates/jalali`. Only runs when this crate
-# (or its workflow file) changes.
+# Crate-specific checks for `crates/jalali-calendar`. Only runs when
+# this crate (or its workflow file) changes.
 
 on:
   push:
     branches: [main]
     paths:
-      - "crates/jalali/**"
+      - "crates/jalali-calendar/**"
       - ".github/workflows/crate-jalali-calendar.yml"
       - "Cargo.toml"
       - "Cargo.lock"
   pull_request:
     paths:
-      - "crates/jalali/**"
+      - "crates/jalali-calendar/**"
       - ".github/workflows/crate-jalali-calendar.yml"
       - "Cargo.toml"
       - "Cargo.lock"

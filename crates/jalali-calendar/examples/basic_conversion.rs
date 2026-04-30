@@ -2,7 +2,7 @@
 //!
 //! Run with: `cargo run --example basic_conversion -p jalali`
 
-use jalali::JalaliDate;
+use jalali_calendar::JalaliDate;
 
 fn main() {
     let j = JalaliDate::from_gregorian(2024, 3, 20).expect("valid Gregorian date");

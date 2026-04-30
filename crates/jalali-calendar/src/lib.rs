@@ -2,8 +2,8 @@
 //!
 //! A comprehensive Jalali (Persian / Shamsi) calendar library for Rust.
 //!
-//! The crate publishes as **`jalali-calendar`** on crates.io but its library
-//! name is `jalali`, so user code imports it as `use jalali::*;`.
+//! Add it to `Cargo.toml` as `jalali-calendar = "0.1"` and import it as
+//! `use jalali_calendar::*;`.
 //!
 //! ## What's in the box
 //!
@@ -22,7 +22,7 @@
 //! ## Quick example
 //!
 //! ```
-//! use jalali::JalaliDate;
+//! use jalali_calendar::JalaliDate;
 //!
 //! // Convert from Gregorian.
 //! let nowruz = JalaliDate::from_gregorian(2024, 3, 20).unwrap();
@@ -206,7 +206,7 @@ impl Weekday {
     /// Full Persian (Farsi) name of the weekday.
     ///
     /// ```
-    /// # use jalali::Weekday;
+    /// # use jalali_calendar::Weekday;
     /// assert_eq!(Weekday::Saturday.persian_name(), "شنبه");
     /// assert_eq!(Weekday::Friday.persian_name(), "جمعه");
     /// ```
@@ -226,7 +226,7 @@ impl Weekday {
     /// `ج`).
     ///
     /// ```
-    /// # use jalali::Weekday;
+    /// # use jalali_calendar::Weekday;
     /// assert_eq!(Weekday::Wednesday.persian_abbreviation(), "چ");
     /// ```
     pub fn persian_abbreviation(self) -> &'static str {
@@ -259,7 +259,7 @@ impl Weekday {
     /// Useful when computing week numbers or laying out a calendar grid.
     ///
     /// ```
-    /// # use jalali::Weekday;
+    /// # use jalali_calendar::Weekday;
     /// assert_eq!(Weekday::Saturday.num_days_from_saturday(), 0);
     /// assert_eq!(Weekday::Friday.num_days_from_saturday(), 6);
     /// ```
@@ -292,13 +292,13 @@ impl Weekday {
 /// `JalaliDate` is `Copy` and ordered chronologically.
 ///
 /// ```
-/// use jalali::JalaliDate;
+/// use jalali_calendar::JalaliDate;
 ///
 /// let a = JalaliDate::new(1403, 1, 1)?;
 /// let b = JalaliDate::new(1403, 12, 30)?;
 /// assert!(a < b);
 /// assert_eq!(a.days_until(&b), 365);
-/// # Ok::<(), jalali::Error>(())
+/// # Ok::<(), jalali_calendar::Error>(())
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct JalaliDate {
@@ -317,7 +317,7 @@ impl JalaliDate {
     /// day 30 of Esfand in a non-leap year).
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// assert!(JalaliDate::new(1403, 12, 30).is_ok());  // 1403 is leap
     /// assert!(JalaliDate::new(1404, 12, 30).is_err()); // 1404 is not
     /// ```
@@ -342,10 +342,10 @@ impl JalaliDate {
     /// real Gregorian date.
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// let j = JalaliDate::from_gregorian(2024, 3, 20)?;
     /// assert_eq!((j.year(), j.month(), j.day()), (1403, 1, 1));
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn from_gregorian(gy: i32, gm: u32, gd: u32) -> Result<Self, Error> {
         if !algorithm::is_valid_gregorian(gy, gm, gd) {
@@ -367,10 +367,10 @@ impl JalaliDate {
     /// `(year, month, day)`.
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// let g = JalaliDate::new(1403, 1, 1)?.to_gregorian();
     /// assert_eq!(g, (2024, 3, 20));
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn to_gregorian(&self) -> (i32, u32, u32) {
         algorithm::j2g(self.year, self.month, self.day)
@@ -395,11 +395,11 @@ impl JalaliDate {
     /// backward.
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// let d = JalaliDate::new(1403, 1, 1)?;
     /// assert_eq!(d.add_days(31), JalaliDate::new(1403, 2, 1)?);
     /// assert_eq!(d.add_days(-1), JalaliDate::new(1402, 12, 29)?);
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn add_days(&self, days: i32) -> Self {
         let abs = algorithm::j_to_abs(self.year, self.month, self.day) + days;
@@ -423,10 +423,10 @@ impl JalaliDate {
     /// Day of the week.
     ///
     /// ```
-    /// # use jalali::{JalaliDate, Weekday};
+    /// # use jalali_calendar::{JalaliDate, Weekday};
     /// // Nowruz 1403 (2024-03-20) was a Wednesday.
     /// assert_eq!(JalaliDate::new(1403, 1, 1)?.weekday(), Weekday::Wednesday);
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn weekday(&self) -> Weekday {
         // Rata Die day 1 (Jan 1, 1 CE) was a Monday, which is Persian
@@ -447,10 +447,10 @@ impl JalaliDate {
     /// Day of the year, in `1..=365` (or `1..=366` in a leap year).
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// assert_eq!(JalaliDate::new(1403, 1, 1)?.ordinal(), 1);
     /// assert_eq!(JalaliDate::new(1403, 12, 30)?.ordinal(), 366);
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn ordinal(&self) -> u32 {
         if self.month <= 6 {
@@ -579,11 +579,11 @@ impl JalaliDate {
     /// month's length.
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// // Mehr (month 7) only has 30 days, so day 31 clamps.
     /// let d = JalaliDate::new(1403, 6, 31)?.add_months(1);
     /// assert_eq!(d, JalaliDate::new(1403, 7, 30)?);
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn add_months(&self, months: i32) -> Self {
         let total = self.year as i64 * 12 + (self.month as i64 - 1) + months as i64;
@@ -597,10 +597,10 @@ impl JalaliDate {
     /// to Esfand 29 if the target year is not leap.
     ///
     /// ```
-    /// # use jalali::JalaliDate;
+    /// # use jalali_calendar::JalaliDate;
     /// let d = JalaliDate::new(1403, 12, 30)?; // 1403 is leap
     /// assert_eq!(d.add_years(1), JalaliDate::new(1404, 12, 29)?);
-    /// # Ok::<(), jalali::Error>(())
+    /// # Ok::<(), jalali_calendar::Error>(())
     /// ```
     pub fn add_years(&self, years: i32) -> Self {
         let new_year = self.year + years;

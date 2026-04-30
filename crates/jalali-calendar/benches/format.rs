@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use jalali::{JalaliDate, JalaliDateTime};
+use jalali_calendar::{JalaliDate, JalaliDateTime};
 
 fn bench_format_iso(c: &mut Criterion) {
     let d = JalaliDate::new(1403, 1, 1).unwrap();

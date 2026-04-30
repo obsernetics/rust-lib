@@ -22,7 +22,7 @@ Comprehensive Jalali (Persian / Shamsi) calendar for Rust.
 * Calendar info: `weekday()`, `season()`, `ordinal()`, `week_of_year()`, `is_leap_year()`, `days_in_this_month()`.
 * Persian month and weekday names (full + abbreviated), season names.
 * `strftime`-style `format()` and `parse_format()` with tokens `%Y %y %m %d %e %j %B %b %A %a %K %H %M %S %T %p %P %%`.
-* Persian, Arabic, and Latin digit conversion (`jalali::digits`).
+* Persian, Arabic, and Latin digit conversion (`jalali_calendar::digits`).
 * Unix timestamp <-> Jalali (`from_unix_timestamp` / `to_unix_timestamp`).
 * `today()` and `now()` from the system clock.
 * String parsing accepting Persian/Arabic digits and `/` or `-` separators.
@@ -51,16 +51,9 @@ jalali-calendar = { version = "0.1", features = ["serde", "chrono", "timezone"] 
 # (or "full" to enable all of them)
 ----
 
-The library is imported as `jalali`:
-
 [source,rust]
 ----
-use jalali::JalaliDate;
-----
-
-[source,rust]
-----
-use jalali::{JalaliDate, JalaliDateTime};
+use jalali_calendar::{JalaliDate, JalaliDateTime};
 
 let j = JalaliDate::from_gregorian(2024, 3, 20)?;
 assert_eq!((j.year(), j.month(), j.day()), (1403, 1, 1));
@@ -80,7 +73,7 @@ assert_eq!(later.format("%H:%M"), "15:30");
 // Helpers.
 let last = j.last_day_of_year();
 assert_eq!(last.day(), 30); // 1403 is leap
-# Ok::<(), jalali::Error>(())
+# Ok::<(), jalali_calendar::Error>(())
 ----
 
 == Examples

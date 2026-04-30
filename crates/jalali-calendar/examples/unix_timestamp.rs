@@ -2,7 +2,7 @@
 //!
 //! Run with: `cargo run --example unix_timestamp -p jalali`
 
-use jalali::JalaliDate;
+use jalali_calendar::JalaliDate;
 
 fn main() {
     let now_ts: i64 = 1_710_892_800; // 2024-03-20 00:00 UTC

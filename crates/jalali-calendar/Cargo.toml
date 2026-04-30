@@ -14,9 +14,6 @@ categories = ["date-and-time", "internationalization"]
 rust-version = "1.85"
 exclude = ["target/**/*"]
 
-[lib]
-name = "jalali"
-
 [features]
 default = []
 serde = ["dep:serde"]
