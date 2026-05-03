@@ -16,6 +16,10 @@ A workspace of Rust libraries for developers in Iran.
 | link:crates/jalali-calendar[`jalali-calendar`]
 | image:https://img.shields.io/crates/v/jalali-calendar.svg[crates.io,link=https://crates.io/crates/jalali-calendar] image:https://docs.rs/jalali-calendar/badge.svg[docs.rs,link=https://docs.rs/jalali-calendar]
 | Jalali (Persian / Shamsi) calendar — dates, datetimes, timezones, strftime, parsing, arithmetic, digits.
+
+| link:crates/parsitext[`parsitext`]
+| image:https://img.shields.io/crates/v/parsitext.svg[crates.io,link=https://crates.io/crates/parsitext] image:https://docs.rs/parsitext/badge.svg[docs.rs,link=https://docs.rs/parsitext]
+| Persian text processing — orthography, ZWNJ, digit unification, slang, profanity, sentence splitting, stemmer, transliteration, Finglish↔Persian, chat/GenZ register conversion, Iranian validators (national ID, IBAN, bank card, phone, postal code, car plate), entity recognition.
 |===
 
 == License
