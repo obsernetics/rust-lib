@@ -1,0 +1,50 @@
+name: parsitext
+
+# Crate-specific checks for `crates/parsitext`. Only runs when
+# this crate (or its workflow file) changes.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/parsitext/**"
+      - ".github/workflows/crate-parsitext.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+  pull_request:
+    paths:
+      - "crates/parsitext/**"
+      - ".github/workflows/crate-parsitext.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  features:
+    name: Feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build -p parsitext --no-default-features
+      - run: cargo build -p parsitext --no-default-features --features serde
+      - run: cargo build -p parsitext --no-default-features --features jalali
+      - run: cargo build -p parsitext --features parallel
+      - run: cargo build -p parsitext --all-features
+      - run: cargo test -p parsitext --all-features
+
+  package:
+    name: cargo package (verify publishable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo package -p parsitext
