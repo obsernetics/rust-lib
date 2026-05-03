@@ -1,0 +1,11 @@
+{
+  "_comment": "Character-level and common misspelling corrections for formal Persian text.",
+  "corrections": {
+    "ك":  "ک",
+    "ي":  "ی",
+    "ى":  "ی",
+    "ة":  "ه",
+    "إ":  "ا",
+    "أ":  "ا"
+  }
+}
