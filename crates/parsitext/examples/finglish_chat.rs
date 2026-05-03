@@ -26,7 +26,8 @@ fn main() {
     }
 
     println!("\n─── Chat → Formal (slang expansion) ───");
-    for s in ["میخوام برم خونه", "نمیدونم چیه", "میتونم کمکت کنم"] {
+    for s in ["میخوام برم خونه", "نمیدونم چیه", "میتونم کمکت کنم"]
+    {
         println!("  {s:<25}  →  {}", style::to_formal(s));
     }
 
@@ -41,24 +42,23 @@ fn main() {
     }
 
     println!("\n─── Finglish → GenZ Persian (composed) ───");
-    for s in [
-        "salam, mikhay biay party emshab?",
-        "merci! kheyli ali bood",
-    ] {
+    for s in ["salam, mikhay biay party emshab?", "merci! kheyli ali bood"] {
         println!("  {s:<40}  →  {}", style::to_genz(s));
     }
 
     println!("\n─── Phonetic matching (Persian Soundex) ───");
     for (a, b) in [
-        ("صبر", "سبر"),       // both [s][b][r] phonetically
-        ("ذرت", "زرت"),       // both [z][r][t]
-        ("کتاب", "سفر"),      // distinct
+        ("صبر", "سبر"),  // both [s][b][r] phonetically
+        ("ذرت", "زرت"),  // both [z][r][t]
+        ("کتاب", "سفر"), // distinct
     ] {
         let same = phonetic::matches(a, b);
-        println!("  {a} ↔ {b}  →  {} (codes {} / {})",
-                 if same { "MATCH" } else { "differ" },
-                 phonetic::soundex(a),
-                 phonetic::soundex(b));
+        println!(
+            "  {a} ↔ {b}  →  {} (codes {} / {})",
+            if same { "MATCH" } else { "differ" },
+            phonetic::soundex(a),
+            phonetic::soundex(b)
+        );
     }
 
     println!("\n─── Spell-check (built-in dict) ───");
