@@ -4,7 +4,7 @@ image:https://img.shields.io/crates/v/iran-pay.svg[crates.io,link=https://crates
 image:https://docs.rs/iran-pay/badge.svg[docs.rs,link=https://docs.rs/iran-pay]
 image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
 image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License]
-image:https://img.shields.io/badge/MSRV-1.85-orange.svg[MSRV]
+image:https://img.shields.io/badge/MSRV-1.88-orange.svg[MSRV]
 image:https://deps.rs/repo/github/obsernetics/rust-lib/status.svg[Dependencies,link=https://deps.rs/repo/github/obsernetics/rust-lib]
 
 Unified async SDK for Iranian payment gateways.
