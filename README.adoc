@@ -20,6 +20,10 @@ A workspace of Rust libraries for developers in Iran.
 | link:crates/parsitext[`parsitext`]
 | image:https://img.shields.io/crates/v/parsitext.svg[crates.io,link=https://crates.io/crates/parsitext] image:https://docs.rs/parsitext/badge.svg[docs.rs,link=https://docs.rs/parsitext]
 | Persian text processing — orthography, ZWNJ, digit unification, slang, profanity, sentence splitting, stemmer, transliteration, Finglish↔Persian, chat/GenZ register conversion, Iranian validators (national ID, IBAN, bank card, phone, postal code, car plate), entity recognition.
+
+| link:crates/iran-pay[`iran-pay`]
+| image:https://img.shields.io/crates/v/iran-pay.svg[crates.io,link=https://crates.io/crates/iran-pay] image:https://docs.rs/iran-pay/badge.svg[docs.rs,link=https://docs.rs/iran-pay]
+| Iran Pay - Unified async SDK for Iranian payment gateways.
 |===
 
 == License
