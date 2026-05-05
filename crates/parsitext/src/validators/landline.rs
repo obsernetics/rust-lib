@@ -257,4 +257,40 @@ mod tests {
     fn province_persian_name() {
         assert_eq!(Province::Tehran.persian_name(), Some("تهران"));
     }
+
+    #[test]
+    fn province_display_impl() {
+        assert_eq!(format!("{}", Province::Tehran), "Tehran");
+        assert_eq!(format!("{}", Province::Isfahan), "Isfahan");
+        assert_eq!(format!("{}", Province::Fars), "Fars");
+    }
+
+    #[test]
+    fn english_and_persian_names_for_every_known_code() {
+        // Walks the PROVINCES table to ensure each enum variant resolves.
+        for (code, prov, en, fa) in PROVINCES {
+            assert_eq!(prov.english_name(), Some(*en));
+            assert_eq!(prov.persian_name(), Some(*fa));
+            // Build a phone with this area code and look it up.
+            let phone = format!("0{code}12345678");
+            assert!(validate(&phone), "{phone}");
+            assert_eq!(province(&phone), Some(*prov));
+        }
+    }
+
+    #[test]
+    fn rejects_short_phone() {
+        assert!(canonicalize("0").is_none());
+    }
+
+    #[test]
+    fn rejects_no_leading_zero() {
+        assert!(canonicalize("12345678901").is_none());
+    }
+
+    #[test]
+    fn unknown_area_code_returns_none() {
+        // 99 is not in the PROVINCES table.
+        assert_eq!(province("09999999999"), None);
+    }
 }

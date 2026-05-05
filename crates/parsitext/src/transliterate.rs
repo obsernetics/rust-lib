@@ -103,4 +103,51 @@ mod tests {
     fn empty_input() {
         assert_eq!(to_latin(""), "");
     }
+
+    #[test]
+    fn covers_every_letter_branch() {
+        // Each branch in `map_char` produces a known mapping.
+        assert_eq!(to_latin("آ"), "a");
+        assert_eq!(to_latin("أ"), "a");
+        assert_eq!(to_latin("إ"), "a");
+        assert_eq!(to_latin("ي"), "y");
+        assert_eq!(to_latin("ى"), "y");
+        assert_eq!(to_latin("پ"), "p");
+        assert_eq!(to_latin("ط"), "t"); // Arabic ط
+        assert_eq!(to_latin("ث"), "s");
+        assert_eq!(to_latin("ص"), "s");
+        assert_eq!(to_latin("ج"), "j");
+        assert_eq!(to_latin("ح"), "h");
+        assert_eq!(to_latin("ة"), "h");
+        assert_eq!(to_latin("ذ"), "z");
+        assert_eq!(to_latin("ظ"), "z");
+        assert_eq!(to_latin("ض"), "z");
+        assert_eq!(to_latin("ژ"), "zh");
+        assert_eq!(to_latin("ع"), "'");
+        assert_eq!(to_latin("ء"), "'");
+        assert_eq!(to_latin("غ"), "gh");
+        assert_eq!(to_latin("ق"), "gh");
+        assert_eq!(to_latin("ف"), "f");
+        assert_eq!(to_latin("ك"), "k"); // Arabic kaf
+        assert_eq!(to_latin("گ"), "g");
+        assert_eq!(to_latin("ل"), "l");
+        assert_eq!(to_latin("م"), "m");
+        assert_eq!(to_latin("ن"), "n");
+    }
+
+    #[test]
+    fn drops_diacritics() {
+        // Fatha, kasra, damma — all in the U+064B..U+0655 range.
+        assert_eq!(to_latin("مَ"), "m");
+        assert_eq!(to_latin("مِ"), "m");
+        assert_eq!(to_latin("مُ"), "m");
+        // Tatweel U+0640.
+        assert_eq!(to_latin("مـم"), "mm");
+    }
+
+    #[test]
+    fn keeps_unmapped_chars_unchanged() {
+        // Emoji passes through.
+        assert_eq!(to_latin("سلام🙂"), "slam🙂");
+    }
 }

@@ -237,4 +237,100 @@ mod tests {
         //  bank() helper is exercised in tests/integration.rs.)
         assert!(bank_code("IR062960000000100324200001").is_some());
     }
+
+    #[test]
+    fn generate_round_trip_melli() {
+        let iban = generate("017", '0', "0225264111007").unwrap();
+        assert_eq!(iban, "IR720170000000225264111007");
+        assert!(validate(&iban));
+        assert_eq!(bank_code(&iban).as_deref(), Some("017"));
+    }
+
+    #[test]
+    fn generate_pads_short_account_number() {
+        let iban = generate("017", '0', "1").unwrap();
+        // 18-digit zero-padded account part means the BBAN is 22 chars.
+        assert_eq!(iban.len(), 26);
+        assert!(validate(&iban));
+    }
+
+    #[test]
+    fn generate_with_max_18_digit_account() {
+        let iban = generate("012", '0', "123456789012345678").unwrap();
+        assert!(validate(&iban));
+    }
+
+    #[test]
+    fn generate_known_bank_lookup() {
+        let iban = generate("012", '0', "100").unwrap();
+        assert_eq!(bank("Hello"), None); // bad input
+        assert_eq!(
+            bank(&iban).map(str::to_owned).as_deref(),
+            Some("Bank Mellat")
+        );
+        assert_eq!(
+            bank_persian(&iban).map(str::to_owned).as_deref(),
+            Some("بانک ملت")
+        );
+    }
+
+    #[test]
+    fn generate_rejects_short_bank_code() {
+        assert!(generate("17", '0', "100").is_none());
+    }
+
+    #[test]
+    fn generate_rejects_long_bank_code() {
+        assert!(generate("0017", '0', "100").is_none());
+    }
+
+    #[test]
+    fn generate_rejects_non_digit_bank_code() {
+        assert!(generate("01A", '0', "100").is_none());
+    }
+
+    #[test]
+    fn generate_rejects_non_digit_account_type() {
+        assert!(generate("017", 'X', "100").is_none());
+    }
+
+    #[test]
+    fn generate_rejects_empty_account() {
+        assert!(generate("017", '0', "").is_none());
+    }
+
+    #[test]
+    fn generate_rejects_too_long_account() {
+        let long = "1".repeat(19);
+        assert!(generate("017", '0', &long).is_none());
+    }
+
+    #[test]
+    fn generate_rejects_non_digit_account() {
+        assert!(generate("017", '0', "12X45").is_none());
+    }
+
+    #[test]
+    fn bank_code_returns_none_for_invalid() {
+        assert_eq!(bank_code("not-an-iban"), None);
+        assert_eq!(bank_code("IR000000000000000000000000"), None); // bad checksum
+    }
+
+    #[test]
+    fn canonicalize_rejects_non_digit_chars() {
+        // Letter inside the digit body
+        assert!(!validate("IRAB2960000000100324200001"));
+    }
+
+    #[test]
+    fn arabic_digits_in_iban() {
+        // Persian digits should normalise to ASCII before validation.
+        assert!(validate("IR۰۶۲۹۶۰۰۰۰۰۰۰۱۰۰۳۲۴۲۰۰۰۰۱"));
+    }
+
+    #[test]
+    fn bank_returns_none_for_bad_iban() {
+        assert_eq!(bank("garbage"), None);
+        assert_eq!(bank_persian("garbage"), None);
+    }
 }

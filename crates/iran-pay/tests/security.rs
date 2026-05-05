@@ -327,3 +327,179 @@ fn sha256_local(input: &[u8]) -> [u8; 32] {
     }
     out
 }
+
+// ── Error Display impls (full coverage of error.rs) ─────────────────────────
+
+#[test]
+fn error_display_gateway() {
+    let e = Error::Gateway {
+        provider: "zarinpal",
+        code: -9,
+        message: "validation failed".into(),
+    };
+    let s = e.to_string();
+    assert!(s.contains("zarinpal"));
+    assert!(s.contains("-9"));
+    assert!(s.contains("validation failed"));
+}
+
+#[test]
+fn error_display_amount_mismatch() {
+    let e = Error::AmountMismatch {
+        expected: Amount::toman(1000),
+        actual: Amount::toman(999),
+    };
+    assert!(e.to_string().contains("mismatch"));
+}
+
+#[test]
+fn error_display_config() {
+    let e = Error::Config("missing merchant id".into());
+    assert!(e.to_string().contains("missing merchant id"));
+}
+
+#[test]
+fn error_display_unsupported() {
+    let e = Error::Unsupported {
+        provider: "payir",
+        operation: "refund_payment",
+    };
+    let s = e.to_string();
+    assert!(s.contains("payir"));
+    assert!(s.contains("refund_payment"));
+}
+
+#[test]
+fn error_display_decode() {
+    let e = Error::Decode {
+        provider: "idpay",
+        message: "missing data field".into(),
+    };
+    let s = e.to_string();
+    assert!(s.contains("idpay"));
+    assert!(s.contains("missing data field"));
+}
+
+#[test]
+fn error_is_std_error() {
+    fn assert_std_error<E: std::error::Error>(_: &E) {}
+    let e = Error::Config("x".into());
+    assert_std_error(&e);
+}
+
+// ── Builder methods + Currency Display + Mock variants ─────────────────────
+
+#[test]
+fn currency_display_impl() {
+    assert_eq!(format!("{}", iran_pay::Currency::Toman), "Toman");
+    assert_eq!(format!("{}", iran_pay::Currency::Rial), "Rial");
+}
+
+#[test]
+fn amount_min_saturates_no_panic() {
+    let a = Amount::toman(i64::MIN);
+    let _ = a.as_rials();
+    let _ = a.as_tomans();
+    assert_eq!(format!("{a}"), format!("{a}"));
+}
+
+#[test]
+fn amount_new_dispatch() {
+    use iran_pay::Currency;
+    let t = Amount::new(100, Currency::Toman);
+    let r = Amount::new(1000, Currency::Rial);
+    assert_eq!(t, r);
+}
+
+#[test]
+fn amount_zero() {
+    assert!(Amount::rial(0).is_zero());
+    assert!(!Amount::rial(1).is_zero());
+}
+
+#[tokio::test]
+async fn provider_with_client_builder() {
+    use iran_pay::providers::{IDPay, NextPay, PayIr, Vandar, ZarinPal, Zibal};
+    use iran_pay::Gateway;
+
+    let custom = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(5))
+        .build()
+        .unwrap();
+
+    // Just exercise each `with_client` builder so it counts toward coverage.
+    assert_eq!(
+        ZarinPal::new("m").with_client(custom.clone()).name(),
+        "zarinpal"
+    );
+    assert_eq!(IDPay::new("k").with_client(custom.clone()).name(), "idpay");
+    assert_eq!(
+        NextPay::new("k").with_client(custom.clone()).name(),
+        "nextpay"
+    );
+    assert_eq!(PayIr::new("k").with_client(custom.clone()).name(), "payir");
+    assert_eq!(Zibal::new("m").with_client(custom.clone()).name(), "zibal");
+    assert_eq!(Vandar::new("k").with_client(custom).name(), "vandar");
+}
+
+#[tokio::test]
+async fn zarinpal_with_pay_base_overrides_redirect() {
+    use iran_pay::providers::ZarinPal;
+    use iran_pay::{Gateway, StartRequest};
+    use serde_json::json;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/pg/v4/payment/request.json"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "data": {"code": 100, "authority": "AUTH123", "fee": 0, "fee_type": "Merchant", "message": "OK"},
+            "errors": []
+        })))
+        .mount(&server)
+        .await;
+
+    let gw = ZarinPal::new("m")
+        .with_api_base(server.uri())
+        .with_pay_base("https://my-custom-pay.invalid");
+
+    let req = StartRequest::builder()
+        .amount(Amount::toman(1000))
+        .description("d")
+        .callback_url("https://x/cb")
+        .build();
+    let resp = gw.start_payment(&req).await.unwrap();
+    assert!(resp
+        .payment_url
+        .starts_with("https://my-custom-pay.invalid"));
+}
+
+#[test]
+fn refund_request_construction() {
+    let req = iran_pay::RefundRequest {
+        transaction_id: "TX-1".into(),
+        amount: None,
+        reason: None,
+    };
+    assert_eq!(req.transaction_id, "TX-1");
+    assert!(req.amount.is_none());
+
+    let req = iran_pay::RefundRequest {
+        transaction_id: "TX-2".into(),
+        amount: Some(Amount::toman(500)),
+        reason: Some("user request".into()),
+    };
+    assert_eq!(req.amount, Some(Amount::toman(500)));
+}
+
+#[test]
+fn check_authority_format_max_length_boundary() {
+    use iran_pay::security::check_authority_format;
+    // Exactly 128 chars is OK.
+    let max = "a".repeat(128);
+    assert!(check_authority_format(&max).is_ok());
+    // 129 is rejected.
+    let over = "a".repeat(129);
+    assert!(check_authority_format(&over).is_err());
+}

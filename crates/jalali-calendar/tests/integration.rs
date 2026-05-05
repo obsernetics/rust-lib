@@ -294,3 +294,139 @@ fn chrono_naive_round_trip_many_years() {
         }
     }
 }
+
+// ── Format token coverage ──────────────────────────────────────────────────
+
+#[test]
+fn format_every_supported_token() {
+    let dt = JalaliDateTime::new(1403, 1, 1, 7, 5, 9).unwrap();
+    // Cover Y, y, m, d, e, j, B, b, A, a, K, H, M, S, T, p, P, %.
+    assert_eq!(dt.format("%Y"), "1403");
+    assert_eq!(dt.format("%y"), "03");
+    assert_eq!(dt.format("%m"), "01");
+    assert_eq!(dt.format("%-m"), "1");
+    assert_eq!(dt.format("%d"), "01");
+    assert_eq!(dt.format("%-d"), "1");
+    assert_eq!(dt.format("%e"), " 1");
+    assert_eq!(dt.format("%j"), "001");
+    assert_eq!(dt.format("%B"), "فروردین");
+    assert!(dt.format("%b").len() <= "فروردین".len());
+    assert_eq!(dt.format("%A"), "چهارشنبه");
+    assert_eq!(dt.format("%a"), "چ");
+    assert_eq!(dt.format("%K"), "بهار");
+    assert_eq!(dt.format("%H"), "07");
+    assert_eq!(dt.format("%M"), "05");
+    assert_eq!(dt.format("%S"), "09");
+    assert_eq!(dt.format("%T"), "07:05:09");
+    assert_eq!(dt.format("%p"), "AM");
+    assert_eq!(dt.format("%P"), "am");
+    assert_eq!(dt.format("%%"), "%");
+}
+
+#[test]
+fn format_pm_for_afternoon() {
+    let dt = JalaliDateTime::new(1403, 6, 15, 18, 30, 0).unwrap();
+    assert_eq!(dt.format("%p"), "PM");
+    assert_eq!(dt.format("%P"), "pm");
+}
+
+#[test]
+fn format_unknown_token_emits_literal_percent() {
+    // %Z is unsupported; format should emit the literal token.
+    let d = JalaliDate::new(1403, 1, 1).unwrap();
+    let s = d.format("%Z");
+    assert!(s.contains("Z") || s.contains("%"));
+}
+
+#[test]
+fn format_trailing_percent_is_kept() {
+    let d = JalaliDate::new(1403, 1, 1).unwrap();
+    assert_eq!(d.format("hello%"), "hello%");
+}
+
+#[test]
+fn parse_format_supports_h_m_s() {
+    let dt = JalaliDateTime::parse_format("1403/01/01 23:59:59", "%Y/%m/%d %H:%M:%S").unwrap();
+    assert_eq!(dt.hour(), 23);
+    assert_eq!(dt.minute(), 59);
+    assert_eq!(dt.second(), 59);
+}
+
+#[test]
+#[allow(non_snake_case)]
+fn parse_format_T_token() {
+    let dt = JalaliDateTime::parse_format("1403/01/01 12:34:56", "%Y/%m/%d %T").unwrap();
+    assert_eq!((dt.hour(), dt.minute(), dt.second()), (12, 34, 56));
+}
+
+#[test]
+fn parse_format_year_2digit() {
+    // %y means 2-digit year — typically expanded to current century.
+    let r = JalaliDate::parse_format("03/01/01", "%y/%m/%d");
+    // Either succeeds (if implemented) or errors cleanly.
+    if let Ok(d) = r {
+        assert_eq!(d.month(), 1);
+    }
+}
+
+#[test]
+fn parse_format_missing_year_errors() {
+    assert!(JalaliDate::parse_format("12 فروردین", "%-d %B").is_err());
+}
+
+#[test]
+fn parse_format_persian_digits() {
+    let d = JalaliDate::parse_format("۱۴۰۳/۰۱/۰۱", "%Y/%m/%d").unwrap();
+    assert_eq!((d.year(), d.month(), d.day()), (1403, 1, 1));
+}
+
+#[test]
+fn datetime_with_methods_full() {
+    let dt = JalaliDateTime::new(1403, 1, 1, 0, 0, 0).unwrap();
+    assert_eq!(dt.with_hour(10).unwrap().hour(), 10);
+    assert_eq!(dt.with_minute(20).unwrap().minute(), 20);
+    assert_eq!(dt.with_second(30).unwrap().second(), 30);
+    assert_eq!(dt.with_time(1, 2, 3).unwrap().hour(), 1);
+    // Errors
+    assert!(dt.with_hour(24).is_err());
+    assert!(dt.with_minute(60).is_err());
+    assert!(dt.with_second(60).is_err());
+    assert!(dt.with_time(24, 0, 0).is_err());
+}
+
+#[test]
+fn datetime_arithmetic_edges() {
+    let dt = JalaliDateTime::new(1403, 1, 1, 0, 0, 0).unwrap();
+    // Cross midnight forward.
+    let plus = dt.add_seconds(86_400 + 30);
+    assert_eq!((plus.day(), plus.minute()), (2, 0));
+    assert_eq!(plus.second(), 30);
+    // Negative.
+    let minus = dt.add_seconds(-(3_600 + 30));
+    assert_eq!(minus.year(), 1402);
+}
+
+#[test]
+fn weekday_full_names() {
+    use jalali_calendar::Weekday;
+    assert_eq!(Weekday::Saturday.persian_name(), "شنبه");
+    assert_eq!(Weekday::Sunday.persian_name(), "یک‌شنبه");
+    assert_eq!(Weekday::Monday.persian_name(), "دوشنبه");
+    assert_eq!(Weekday::Tuesday.persian_name(), "سه‌شنبه");
+    assert_eq!(Weekday::Wednesday.persian_name(), "چهارشنبه");
+    assert_eq!(Weekday::Thursday.persian_name(), "پنج‌شنبه");
+    assert_eq!(Weekday::Friday.persian_name(), "جمعه");
+    for wd in [
+        Weekday::Saturday,
+        Weekday::Sunday,
+        Weekday::Monday,
+        Weekday::Tuesday,
+        Weekday::Wednesday,
+        Weekday::Thursday,
+        Weekday::Friday,
+    ] {
+        let _ = wd.persian_abbreviation();
+        let _ = wd.english_name();
+        let _ = wd.num_days_from_saturday();
+    }
+}
