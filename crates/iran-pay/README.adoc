@@ -11,24 +11,36 @@ Unified async SDK for Iranian payment gateways.
 
 == Features
 
-* *ZarinPal* driver — production v4 JSON API + sandbox.
-* *IDPay* driver — `X-API-KEY` JSON API + sandbox header.
-* *NextPay* driver — form-encoded API with `code: -1` semantics.
-* *Pay.ir* driver — form-encoded API with the magic `"test"` sandbox key.
+* *Six production drivers* covering ~95% of Iranian online-payment volume:
+** *ZarinPal* — v4 JSON API at `payment.zarinpal.com` + sandbox.
+** *IDPay* — `X-API-KEY` JSON v1.1 + sandbox header.
+** *NextPay* — form-encoded API with `code: -1` token semantics.
+** *Pay.ir* — form-encoded API with the magic `"test"` sandbox key.
+** *Zibal* — JSON API at `gateway.zibal.ir/v1` + magic `"zibal"` test
+   merchant code.
+** *Vandar* — JSON v3 API at `ipg.vandar.io` with `api_key` body auth.
+* Each driver pins to a specific upstream API version — see
+  link:VERSIONING.md[VERSIONING.md] for the upgrade and breakage policy.
 * Single dyn-safe `Gateway` trait — swap providers with one line at runtime.
 * `Amount` type with explicit Toman / Rial unit constructors — eliminates the
   most common Iranian-payment-integration bug at the type level.
 * Built-in `MockGateway` for fast, deterministic, network-free unit tests of
   your checkout code.
-* Re-export of the `parsitext` Iranian validators (national ID, IBAN,
-  bank-card, mobile, postal code, car plate) — pre-flight buyer input
-  before you call the gateway.
+* `security` module: pure-safe-Rust SHA-256 + HMAC-SHA256 (RFC test-vector
+  checked), constant-time byte compare, amount-mismatch guard, and
+  authority-format sanity — for handling callbacks and webhooks safely.
+* Re-export of the `parsitext` Iranian validators (national ID, IBAN with
+  generation, bank-card with bank lookup, mobile + operator detection,
+  landline + province detection, postal code, car plate) — pre-flight buyer
+  input before you call the gateway.
 * `tracing` instrumentation on every driver method (provider name, amount,
   authority surfaced as fields).
 * Strongly-typed `thiserror` error enum: transport, gateway-business, amount
   mismatch, configuration, decode, and unsupported-operation variants are all
   separate.
 * Async-first (`async-trait`), Tokio-friendly, no blocking calls.
+* `cargo bench` suite (criterion) covering HMAC verification, constant-time
+  compare, mock-pipeline, request-builder construction.
 
 === Optional features
 
@@ -40,25 +52,27 @@ Unified async SDK for Iranian payment gateways.
 | `idpay`       | ✓       | Compile the `providers::IDPay` driver
 | `nextpay`     | ✓       | Compile the `providers::NextPay` driver
 | `payir`       | ✓       | Compile the `providers::PayIr` driver
+| `zibal`       | ✓       | Compile the `providers::Zibal` driver
+| `vandar`      | ✓       | Compile the `providers::Vandar` driver
 | `validators`  | ✓       | Re-export `parsitext`'s Iranian validators
 | `rustls-tls`  | ✓       | Use rustls for HTTPS (no system OpenSSL needed)
 | `native-tls`  |         | Use the platform TLS library instead of rustls
 |===
 
-Disabling all four provider features still builds the trait, types, and
-mock gateway — useful when you bring your own driver against this
-abstraction.
+Disabling all six provider features still builds the trait, types, mock
+gateway, and `security` helpers — useful when you bring your own driver
+against this abstraction.
 
 == Quick start
 
 [source,toml]
 ----
 [dependencies]
-iran-pay = "0.1.2"
+iran-pay = "0.1.3"
 tokio    = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 # Or pick only the providers you need:
-iran-pay = { version = "0.1.2", default-features = false, features = ["zarinpal", "rustls-tls"] }
+iran-pay = { version = "0.1.3", default-features = false, features = ["zarinpal", "rustls-tls"] }
 ----
 
 [source,rust]
@@ -102,7 +116,7 @@ Each runnable example lives in `examples/`:
 | Example            | What it demonstrates
 
 | `zarinpal_basic`   | Minimal start-payment flow against the ZarinPal sandbox.
-| `multi_gateway`    | `Box<dyn Gateway>` polymorphism — register all four providers and look them up by key.
+| `multi_gateway`    | `Box<dyn Gateway>` polymorphism — register every provider and look them up by key.
 | `with_validators`  | Use the `validators` re-export to check bank cards / mobiles / operators before calling the gateway.
 | `mock_in_test`     | Drop `MockGateway` into your own service tests; assert call counts and script failures.
 |===

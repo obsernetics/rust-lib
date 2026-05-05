@@ -4,7 +4,7 @@ image:https://img.shields.io/crates/v/parsitext.svg[crates.io,link=https://crate
 image:https://docs.rs/parsitext/badge.svg[docs.rs,link=https://docs.rs/parsitext]
 image:https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml/badge.svg[CI,link=https://github.com/obsernetics/rust-lib/actions/workflows/ci.yml]
 image:https://img.shields.io/badge/license-Apache--2.0-blue.svg[License]
-image:https://img.shields.io/badge/MSRV-1.85-orange.svg[MSRV]
+image:https://img.shields.io/badge/MSRV-1.88-orange.svg[MSRV]
 image:https://deps.rs/repo/github/obsernetics/rust-lib/status.svg[Dependencies,link=https://deps.rs/repo/github/obsernetics/rust-lib]
 
 High-performance Persian (Farsi) text processing engine for Rust.
@@ -22,9 +22,11 @@ High-performance Persian (Farsi) text processing engine for Rust.
 * Profanity filter (opt-in) — `Light` and `Medium` levels.
 * Custom rules — user-supplied word-boundary-aware replacements.
 
-=== Iranian validators (matches `persian-tools.js`)
+=== Iranian validators (matches `persian-tools.js` + `iranianbank`)
 * `national_id` — کد ملی, 10-digit checksum.
-* `sheba` — شبا / IBAN, mod-97 checksum + bank-issuer lookup (English + Persian names).
+* `sheba` — شبا / IBAN, mod-97 checksum + bank-issuer lookup + **IBAN generation**
+  from `(bank_code, account_type, account_number)` — matches the `iranianbank`
+  crate's `Iban::new` feature.
 * `bank_card` — 16-digit Luhn + bank-issuer lookup from BIN.
 * `phone` — 11-digit Iranian mobile + canonical form + operator detection (MCI / Irancell / RighTel / Shatel / Aptel).
 * `landline` — 11-digit Iranian fixed-line + province detection (all 31 provinces).
@@ -54,8 +56,35 @@ Heuristic morphological glue (opt-in via config or one-shot helper):
 === Persian → Latin transliteration
 Character-level romanisation: `"سلام"` → `"slam"`, `"ایران"` → `"ayran"`. Useful for search-key generation.
 
+=== Finglish ↔ Persian conversion
+Persian-in-Latin-script (Finglish) → Persian script via a ~250-word dictionary
+plus character-level transliteration with ZWNJ-aware digraphs (`kh` `sh` `ch`
+`zh` `gh` `oo` `ou` `aa` `ee`).
+`"salam khoobi?"` → `"سلام خوبی؟"`.
+
+=== Chat / GenZ register conversion (`style::*`)
+* `to_formal(text)` — informal *goftari* → written *neveshtar*.
+* `to_chat(text)` — formal Persian / Finglish → contracted *goftari*.
+* `to_genz(text)` — chat + English-loanword swap (`مهمانی` → `پارتی`,
+  `جذاب` → `کول`, `واقعاً` → `ریلی`).
+All three accept Persian or Finglish input and auto-detect.
+
+=== Persian phonetic matching (`phonetic::soundex`)
+Soundex-style codec that collapses Persian homophone groups
+(`ص` = `س` = `ث`, `ز` = `ذ` = `ض` = `ظ`, `ت` = `ط`, …) so that
+fuzzy-name lookup and search work without indexing every spelling variant.
+
+=== Tantivy analyzer (opt-in)
+With the `tantivy` Cargo feature, `parsitext::tantivy_analyzer::PersianTokenizer`
+plugs into link:https://docs.rs/tantivy[tantivy]'s search index — ZWNJ-aware
+tokenisation, optional stemmer pass, optional Arabic→Persian character
+normalisation, and correct UTF-8 byte offsets for highlighting.
+
 === Spell-check primitives
-Levenshtein edit distance + dictionary-based suggestion engine. Bring your own word list; no built-in dictionary (licence-free Persian dictionaries are not bundled).
+Levenshtein edit distance + dictionary-based suggestion engine.  Ships with
+a bundled ~250-word common-word list (`spell_dict::COMMON_WORDS`,
+`spell::suggest_builtin`); bring your own list with `spell::suggest` for
+domain-specific vocab.
 
 === Optional `jalali` integration
 With the `jalali` Cargo feature, detected date entities are validated against the real Jalali calendar (rejects e.g. Esfand 30 in non-leap years) and `Parsitext::parse_jalali_date` returns a structured `JalaliDate`.
@@ -75,7 +104,8 @@ With the `jalali` Cargo feature, detected date entities are validated against th
 
 | `parallel` | ✓       | Rayon-powered `process_batch`
 | `serde`    |         | `Serialize`/`Deserialize` on all public output types
-| `jalali`   |         | Validate Jalali dates and parse them into `JalaliDate` via the [jalali-calendar] crate
+| `jalali`   |         | Validate Jalali dates and parse them into `JalaliDate` via the link:https://crates.io/crates/jalali-calendar[jalali-calendar] crate
+| `tantivy`  |         | `PersianTokenizer` for the link:https://crates.io/crates/tantivy[tantivy] search engine
 |===
 
 == Quick start
@@ -116,6 +146,7 @@ Each runnable example lives in `examples/`:
 | `custom_rules`      | Apply user-defined whole-word replacement rules.
 | `validators`        | National ID, IBAN, bank card, phone-operator validation, number↔words, money parsing, stemmer.
 | `showcase`          | Car plates, time expressions, ZWNJ insertion, transliteration, spell suggestions, money formatting, landline province detection, Jalali date parsing.
+| `finglish_chat`     | Finglish→Persian conversion, formal/chat/GenZ register transformation, Soundex matching, spell suggestions.
 |===
 
 Run with:
