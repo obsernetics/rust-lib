@@ -54,11 +54,11 @@ abstraction.
 [source,toml]
 ----
 [dependencies]
-iran-pay = "0.1.1"
+iran-pay = "0.1.2"
 tokio    = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 # Or pick only the providers you need:
-iran-pay = { version = "0.1.1", default-features = false, features = ["zarinpal", "rustls-tls"] }
+iran-pay = { version = "0.1.2", default-features = false, features = ["zarinpal", "rustls-tls"] }
 ----
 
 [source,rust]
