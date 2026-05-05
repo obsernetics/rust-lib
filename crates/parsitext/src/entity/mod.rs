@@ -393,29 +393,28 @@ fn validate_isbn(raw: &str) -> bool {
         .collect();
     match chars.len() {
         10 => {
-            let mut sum = 0i32;
+            let mut sum: u32 = 0;
             for (i, c) in chars.iter().enumerate() {
-                let d = if (*c == 'X' || *c == 'x') && i == 9 {
+                let d: u32 = if (*c == 'X' || *c == 'x') && i == 9 {
                     10
                 } else if let Some(n) = c.to_digit(10) {
-                    n as i32
+                    n
                 } else {
                     return false;
                 };
-                sum += d * (10 - i as i32);
+                sum += d * (10 - i as u32);
             }
-            sum % 11 == 0
+            sum.is_multiple_of(11)
         }
         13 => {
-            let mut sum = 0i32;
+            let mut sum: u32 = 0;
             for (i, c) in chars.iter().enumerate() {
-                let d = c.to_digit(10).map(|n| n as i32).unwrap_or(-1);
-                if d < 0 {
+                let Some(d) = c.to_digit(10) else {
                     return false;
-                }
-                sum += d * if i % 2 == 0 { 1 } else { 3 };
+                };
+                sum += d * if i.is_multiple_of(2) { 1 } else { 3 };
             }
-            sum % 10 == 0
+            sum.is_multiple_of(10)
         }
         _ => false,
     }

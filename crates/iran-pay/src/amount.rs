@@ -104,7 +104,7 @@ impl fmt::Display for Amount {
             s.push('-');
         }
         for (i, b) in bytes.iter().enumerate() {
-            if i > 0 && (bytes.len() - i) % 3 == 0 {
+            if i > 0 && (bytes.len() - i).is_multiple_of(3) {
                 s.push(',');
             }
             s.push(*b as char);

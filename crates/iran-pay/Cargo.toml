@@ -36,7 +36,7 @@ native-tls = ["reqwest/native-tls"]
 
 [dependencies]
 async-trait = "0.1"
-parsitext = { version = "0.1.1", path = "../parsitext", optional = true }
+parsitext = { version = "0.1", path = "../parsitext", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["json"] }
 serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
 serde_json = "1"

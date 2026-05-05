@@ -58,7 +58,7 @@ fn luhn_ok(digits: &str) -> bool {
             sum += d;
         }
     }
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 fn bank_entry(card: &str) -> Option<&'static (&'static str, &'static str, &'static str)> {
