@@ -58,6 +58,74 @@ pub fn bank_code(sheba: &str) -> Option<String> {
     Some(normalized[4..7].to_owned())
 }
 
+/// Generate a fully-checksummed Iranian IBAN from a bank code, account type
+/// digit, and account number.
+///
+/// Mirrors the `iranianbank` crate's `Iban::new(bank, account_type, account)`
+/// API but works directly off the 3-digit Sheba bank code so callers don't
+/// need an enum.  The account number is left-padded with zeros to fill the
+/// 18-digit account portion.
+///
+/// Returns `None` if any input is malformed:
+/// - `bank_code` not exactly three ASCII digits.
+/// - `account_type` not an ASCII digit.
+/// - `account_number` empty, longer than 18 digits, or non-numeric.
+///
+/// ```
+/// use parsitext::validators::sheba;
+///
+/// // 017 = Bank Melli; account type "0" = standard deposit.
+/// let iban = sheba::generate("017", '0', "0225264111007").unwrap();
+/// assert_eq!(iban, "IR720170000000225264111007");
+/// // The generated IBAN re-validates against the same algorithm.
+/// assert!(sheba::validate(&iban));
+/// // And we can recover the bank code from it.
+/// assert_eq!(sheba::bank_code(&iban).as_deref(), Some("017"));
+/// ```
+#[must_use]
+pub fn generate(bank_code: &str, account_type: char, account_number: &str) -> Option<String> {
+    if bank_code.len() != 3 || !bank_code.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    if !account_type.is_ascii_digit() {
+        return None;
+    }
+    if account_number.is_empty()
+        || account_number.len() > 18
+        || !account_number.chars().all(|c| c.is_ascii_digit())
+    {
+        return None;
+    }
+
+    // BBAN = bank_code (3) + account_type (1) + zero-padded account (18) = 22 digits
+    let bban = format!("{}{}{:0>18}", bank_code, account_type, account_number);
+
+    // ISO 13616: rearrange "IR00" + BBAN → BBAN + "IR00", then check = 98 - mod97
+    let rearranged = format!("{}IR00", bban);
+    let remainder = mod97_str(&rearranged);
+    let check = 98u32.saturating_sub(remainder as u32);
+
+    Some(format!("IR{:02}{}", check, bban))
+}
+
+fn mod97_str(s: &str) -> u64 {
+    let mut rem: u64 = 0;
+    for c in s.chars() {
+        let v: u64 = match c {
+            '0'..='9' => c.to_digit(10).unwrap() as u64,
+            'I' => 18,
+            'R' => 27,
+            _ => 0,
+        };
+        if v >= 10 {
+            rem = (rem * 100 + v) % 97;
+        } else {
+            rem = (rem * 10 + v) % 97;
+        }
+    }
+    rem
+}
+
 // ── internals ─────────────────────────────────────────────────────────────────
 
 fn canonicalize(sheba: &str) -> Option<String> {
