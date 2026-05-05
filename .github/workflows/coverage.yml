@@ -29,11 +29,22 @@ jobs:
         with:
           tool: cargo-llvm-cov
 
-      - name: Generate LCOV report (all features)
-        run: cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
+      # Exclude pure-data files (`const X: &[(...)] = &[ ... ]` tables) — they
+      # contribute thousands of lines that distort the coverage percentage but
+      # have no executable behaviour worth measuring.  Excluded:
+      #   - parsitext/src/data.rs               (slang + profanity tables)
+      #   - parsitext/src/spell_dict.rs         (common-word list)
+      #   - parsitext/src/finglish/dict.rs      (Finglish→Persian word map)
+      #   - parsitext/src/validators/banks.rs   (Sheba + BIN bank registry)
+      - name: Generate LCOV report (all features, excl. data files)
+        run: |
+          cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info \
+            --ignore-filename-regex '(/data\.rs|/banks\.rs|/spell_dict\.rs|/finglish/dict\.rs)$'
 
       - name: Generate text summary
-        run: cargo llvm-cov report --summary-only
+        run: |
+          cargo llvm-cov report --summary-only \
+            --ignore-filename-regex '(/data\.rs|/banks\.rs|/spell_dict\.rs|/finglish/dict\.rs)$'
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5

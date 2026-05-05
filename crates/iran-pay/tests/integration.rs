@@ -1131,3 +1131,144 @@ fn start_request_builder_with_all_fields() {
         Some("custom_value")
     );
 }
+
+// ── HTTP-error & decode-error coverage ─────────────────────────────────────
+
+/// 404 response with HTML body → reqwest .json() fails → Error::Http.
+#[tokio::test]
+async fn zarinpal_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    // No mocks installed: server returns 404 + HTML for every request.
+    let gw = ZarinPal::new("m").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+#[tokio::test]
+async fn idpay_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    let gw = IDPay::new("k").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+#[tokio::test]
+async fn nextpay_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    let gw = NextPay::new("k").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+#[tokio::test]
+async fn payir_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    let gw = PayIr::new("k").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+#[tokio::test]
+async fn zibal_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    let gw = Zibal::new("m").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+#[tokio::test]
+async fn vandar_http_error_on_unmocked_endpoint() {
+    let server = MockServer::start().await;
+    let gw = Vandar::new("k").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    assert!(matches!(res, Err(Error::Http { .. })));
+}
+
+/// Verify path also gets the HTTP-error treatment.
+#[tokio::test]
+async fn all_providers_verify_http_error() {
+    let server = MockServer::start().await;
+    let req = VerifyRequest {
+        authority: "x".into(),
+        amount: Amount::toman(1000),
+    };
+
+    assert!(matches!(
+        ZarinPal::new("m")
+            .with_api_base(server.uri())
+            .verify_payment(&req)
+            .await,
+        Err(Error::Http { .. })
+    ));
+    assert!(matches!(
+        IDPay::new("k")
+            .with_api_base(server.uri())
+            .verify_payment(&req)
+            .await,
+        Err(Error::Http { .. })
+    ));
+    assert!(matches!(
+        NextPay::new("k")
+            .with_api_base(server.uri())
+            .verify_payment(&req)
+            .await,
+        Err(Error::Http { .. })
+    ));
+    assert!(matches!(
+        PayIr::new("k")
+            .with_api_base(server.uri())
+            .verify_payment(&req)
+            .await,
+        Err(Error::Http { .. })
+    ));
+    assert!(matches!(
+        Vandar::new("k")
+            .with_api_base(server.uri())
+            .verify_payment(&req)
+            .await,
+        Err(Error::Http { .. })
+    ));
+
+    // Zibal verify needs a numeric authority; test the http path with a numeric one.
+    let req_num = VerifyRequest {
+        authority: "12345".into(),
+        amount: Amount::toman(1000),
+    };
+    assert!(matches!(
+        Zibal::new("m")
+            .with_api_base(server.uri())
+            .verify_payment(&req_num)
+            .await,
+        Err(Error::Http { .. })
+    ));
+}
+
+/// Decode error: server returns valid JSON but with the wrong shape.
+#[tokio::test]
+async fn zarinpal_decode_error_on_wrong_shape() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/pg/v4/payment/request.json"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"unexpected": "shape"})))
+        .mount(&server)
+        .await;
+
+    let gw = ZarinPal::new("m").with_api_base(server.uri());
+    let res = gw
+        .start_payment(&sample_start_request(Amount::toman(1000)))
+        .await;
+    // ZarinPal happens to succeed-and-then-fail-in-data-parse, so it could be either.
+    assert!(res.is_err());
+}
