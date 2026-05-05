@@ -27,7 +27,7 @@ cargo login <YOUR_TOKEN>
 | Builds on Linux x86_64 with no network       | verified via `cargo package`
 | Build under 12h / 4 GB RAM / 24 GB disk      | trivially satisfied
 | Optional: `[package.metadata.docs.rs]`       | `all-features = true`, `rustdoc-args = ["--cfg", "docsrs"]`
-| Optional: `rust-version` (MSRV)              | each crate's `Cargo.toml`: `rust-version = "1.85"` (current workspace baseline)
+| Optional: `rust-version` (MSRV)              | each crate's `Cargo.toml`: `rust-version = "1.88"` (current workspace baseline)
 | Optional: `homepage`, `documentation`        | both set
 | Optional: `categories`, `keywords`           | both set, valid against the crates.io taxonomy
 |===

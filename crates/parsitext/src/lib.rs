@@ -75,6 +75,9 @@ pub mod spell_dict;
 pub mod stats;
 pub mod stemmer;
 pub mod style;
+#[cfg(feature = "tantivy")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tantivy")))]
+pub mod tantivy_analyzer;
 pub mod transliterate;
 pub mod validators;
 pub mod zwnj_insert;
