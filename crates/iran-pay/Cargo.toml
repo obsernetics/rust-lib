@@ -12,7 +12,7 @@ readme = "README.adoc"
 include = ["src/**/*", "Cargo.toml", "README.adoc", "VERSIONING.md", "LICENSE*"]
 keywords = ["payment", "iran", "zarinpal", "idpay", "gateway"]
 categories = ["api-bindings", "web-programming::http-client"]
-rust-version = "1.85"
+rust-version = "1.88"
 exclude = ["target/**/*"]
 
 [features]

@@ -49,7 +49,7 @@ is the source of truth.
 
 ## Cargo MSRV
 
-Minimum supported Rust version: **1.85**.  Bumping the MSRV is treated
+Minimum supported Rust version: **1.88**.  Bumping the MSRV is treated
 as a MINOR change, never a PATCH change.
 
 ## How to upgrade safely
