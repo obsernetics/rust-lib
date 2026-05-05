@@ -1,0 +1,91 @@
+# Codecov configuration — see https://docs.codecov.com/docs/codecov-yaml
+#
+# Goals:
+#   * Stop CI churning red on tiny coverage wobbles caused by adding new
+#     code paths faster than tests for them.
+#   * Keep `cargo llvm-cov` (run by .github/workflows/coverage.yml) and
+#     codecov.io in sync about what counts toward the percentage.
+#   * Mirror the `--ignore-filename-regex` used in the workflow so the
+#     numbers shown locally and on the dashboard match.
+
+coverage:
+  # Round to integer percent in the UI; 88.81 reads as "89%".
+  precision: 2
+  round: nearest
+  range: "70...90"
+
+  status:
+    project:
+      default:
+        # Whole-workspace target.  We sit ~89% as of 2026-05; allow a 1%
+        # slack so a single uncovered file doesn't trip the check.
+        target: 88%
+        threshold: 1%
+        if_ci_failed: error
+        only_pulls: false
+    patch:
+      default:
+        # New / changed lines in a PR.  80% is the conventional bar; PRs
+        # with no executable change (docs / Cargo.toml only) don't fail.
+        target: 80%
+        threshold: 5%
+        if_ci_failed: error
+
+# Don't count pure-data tables in the percentage.  These are `const X: &[...]
+# = &[ ... ]` arrays — they have no executable behaviour but inflate the
+# line count.  Same patterns as the workflow's --ignore-filename-regex.
+ignore:
+  - "**/tests/**"          # test code shouldn't measure itself
+  - "**/benches/**"        # benchmarks aren't behaviour
+  - "**/examples/**"       # examples are docs-as-code
+  - "**/data.rs"           # parsitext slang + profanity tables
+  - "**/banks.rs"          # parsitext bank registry (Sheba + BIN)
+  - "**/spell_dict.rs"     # parsitext common-word list
+  - "**/finglish/dict.rs"  # parsitext Finglish→Persian word map
+
+comment:
+  # Compact PR comment — diff first, then per-component breakdown.
+  layout: "header, diff, flags, components, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# Per-crate flags so we can see the three crates' numbers separately on the
+# dashboard.  The workflow runs a single `cargo llvm-cov --workspace` so each
+# crate's lines land under its own flag automatically when the LCOV is
+# uploaded with a matching `flags:` directive (we don't yet, but having the
+# definition here lets us add it without a YAML change).
+flags:
+  jalali-calendar:
+    paths:
+      - crates/jalali-calendar/
+    carryforward: true
+  parsitext:
+    paths:
+      - crates/parsitext/
+    carryforward: true
+  iran-pay:
+    paths:
+      - crates/iran-pay/
+    carryforward: true
+
+# Component-level breakdown for the PR comment.  Mirrors `flags`.
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: 85%
+  individual_components:
+    - component_id: jalali-calendar
+      name: jalali-calendar
+      paths:
+        - crates/jalali-calendar/**
+    - component_id: parsitext
+      name: parsitext
+      paths:
+        - crates/parsitext/**
+    - component_id: iran-pay
+      name: iran-pay
+      paths:
+        - crates/iran-pay/**
