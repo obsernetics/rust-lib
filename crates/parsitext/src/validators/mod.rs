@@ -7,19 +7,25 @@
 //!
 //! | Module | What it validates |
 //! |--------|-------------------|
-//! | [`national_id`] | کد ملی — Iranian national ID (10 digits + checksum) |
+//! | [`national_id`] | کد ملی — Iranian personal national ID (10 digits + checksum) |
+//! | [`legal_id`] | شناسه ملی — Iranian legal/company ID (11 digits + weighted checksum) |
 //! | [`sheba`] | شبا — Iranian IBAN (`IR` + 24 digits + mod-97 checksum) |
 //! | [`bank_card`] | کارت بانکی — 16-digit card number (Luhn checksum) |
 //! | [`phone`] | شماره موبایل — 11-digit Iranian mobile number + operator detection |
+//! | [`landline`] | تلفن ثابت — Iranian fixed-line + provincial area-code lookup |
 //! | [`postal_code`] | کد پستی — 10-digit Iranian postal code |
+//! | [`car_plate`] | پلاک خودرو — Iranian vehicle plate parser |
+//! | [`bill`] | قبض — Iranian utility bill ID + pay-id checksums and bill-type detection |
 //!
 //! [`sheba`] and [`bank_card`] also expose `bank()` / `bank_persian()`
 //! helpers that look up the issuing bank from the number.
 
 pub mod bank_card;
 mod banks;
+pub mod bill;
 pub mod car_plate;
 pub mod landline;
+pub mod legal_id;
 pub mod national_id;
 pub mod phone;
 pub mod postal_code;

@@ -23,7 +23,8 @@ High-performance Persian (Farsi) text processing engine for Rust.
 * Custom rules — user-supplied word-boundary-aware replacements.
 
 === Iranian validators (matches `persian-tools.js` + `iranianbank`)
-* `national_id` — کد ملی, 10-digit checksum.
+* `national_id` — کد ملی, 10-digit personal-ID checksum + issuance-prefix extraction.
+* `legal_id` — شناسه ملی, 11-digit company / legal-entity checksum.
 * `sheba` — شبا / IBAN, mod-97 checksum + bank-issuer lookup + **IBAN generation**
   from `(bank_code, account_type, account_number)` — matches the `iranianbank`
   crate's `Iban::new` feature.
@@ -32,6 +33,8 @@ High-performance Persian (Farsi) text processing engine for Rust.
 * `landline` — 11-digit Iranian fixed-line + province detection (all 31 provinces).
 * `postal_code` — 10-digit Iranian postal code.
 * `car_plate` — Iranian vehicle licence plate (`12 ب 345 - 67`).
+* `bill` — قبض / pay-slip: bill-id and pay-id checksums + bill-type detection
+  (water / electricity / gas / phone / mobile / municipality / tax / fines).
 
 === Entity recognition (14 kinds)
 Phone number, Jalali date (numeric + textual), money amount, national ID, bank card (Luhn-validated), IBAN (checksum-validated), postal code, **car plate**, **time expression**, mention, hashtag, URL, e-mail. Match results are post-validated against the issuing checksums to suppress false positives.
@@ -94,7 +97,23 @@ With the `jalali` Cargo feature, detected date entities are validated against th
 * Tokenisation that keeps ZWNJ-joined compound words together.
 * Text statistics — word count, Persian ratio, digit count, sentence count, unique-token count.
 * Batch processing — parallel via Rayon (`parallel` feature, default on).
-* Language detection — `is_persian` / `contains_persian`.
+* Language detection — `is_persian`, `contains_persian`, `script::has_arabic`,
+  `script::has_persian`, `script::is_pure_persian`, `script::to_arabic`.
+
+=== Geographic data (`geo`)
+All 31 Iranian provinces — id, English/Persian names, capital, telephone area
+code, slug — plus a curated set of major cities for province lookup:
+`geo::find_province_by_city("اصفهان")` → Isfahan,
+`geo::get_cities_of_province(19)` → Fars cities.
+
+=== URL helpers (`url_fix`)
+Persian-aware percent-encoding (`encode`/`decode`) and `fix(url)` to render
+percent-encoded Persian URLs back into readable form while leaving the
+scheme + authority untouched.
+
+=== Relative time (`time_diff`)
+`describe(seconds)` and `describe_between(from, to)` produce Persian phrases
+like `"۲ روز پیش"` / `"۳ ساعت دیگر"` for any signed offset.
 
 === Optional features
 

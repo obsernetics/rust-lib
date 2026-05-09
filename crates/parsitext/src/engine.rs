@@ -419,6 +419,50 @@ impl Parsitext {
         text.chars().any(is_arabic_letter)
     }
 
+    /// Convert canonical Persian letters back to Arabic equivalents
+    /// (`ک → ك`, `ی → ي`).  Inverse of the orthography pass.
+    ///
+    /// ```
+    /// use parsitext::Parsitext;
+    ///
+    /// assert_eq!(Parsitext::default().to_arabic("کتاب"), "كتاب");
+    /// ```
+    #[must_use]
+    pub fn to_arabic(&self, text: &str) -> String {
+        crate::script::to_arabic(text)
+    }
+
+    /// Returns `true` if `text` contains an Arabic-only letter that is
+    /// not canonical in Persian (ة ى ي ك …).
+    #[must_use]
+    pub fn has_arabic(&self, text: &str) -> bool {
+        crate::script::has_arabic(text)
+    }
+
+    /// Describe a signed seconds offset as a Persian relative-time phrase.
+    ///
+    /// ```
+    /// use parsitext::Parsitext;
+    ///
+    /// assert_eq!(Parsitext::default().describe_time_diff(-3600), "۱ ساعت پیش");
+    /// ```
+    #[must_use]
+    pub fn describe_time_diff(&self, seconds: i64) -> String {
+        crate::time_diff::describe(seconds)
+    }
+
+    /// Percent-encode `text` for URL inclusion (RFC 3986).
+    #[must_use]
+    pub fn url_encode(&self, text: &str) -> String {
+        crate::url_fix::encode(text)
+    }
+
+    /// Percent-decode `text` (Persian-friendly).
+    #[must_use]
+    pub fn url_decode(&self, text: &str) -> String {
+        crate::url_fix::decode(text)
+    }
+
     // ── internal ─────────────────────────────────────────────────────────────
 
     fn run_entity_detection(&self, normalized: &str) -> Vec<Entity> {

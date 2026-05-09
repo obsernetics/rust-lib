@@ -1,7 +1,7 @@
 [package]
 name = "parsitext"
 description = "High-performance Persian (Farsi) text processing engine for Rust — normalization, tokenization, entity recognition."
-version.workspace = true
+version = "0.1.3"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

@@ -63,12 +63,14 @@ pub mod config;
 pub mod diacritics;
 pub mod entity;
 pub mod finglish;
+pub mod geo;
 #[cfg(feature = "jalali")]
 #[cfg_attr(docsrs, doc(cfg(feature = "jalali")))]
 pub mod jalali;
 pub mod money;
 pub mod numbers;
 pub mod phonetic;
+pub mod script;
 pub mod sentence;
 pub mod spell;
 pub mod spell_dict;
@@ -78,7 +80,9 @@ pub mod style;
 #[cfg(feature = "tantivy")]
 #[cfg_attr(docsrs, doc(cfg(feature = "tantivy")))]
 pub mod tantivy_analyzer;
+pub mod time_diff;
 pub mod transliterate;
+pub mod url_fix;
 pub mod validators;
 pub mod zwnj_insert;
 

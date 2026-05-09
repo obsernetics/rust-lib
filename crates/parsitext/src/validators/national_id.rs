@@ -71,6 +71,33 @@ pub fn expected_check_digit(id: &str) -> Option<u32> {
     Some(if r < 2 { r } else { 11 - r })
 }
 
+/// Issuing-office prefix (first three digits) of a national ID.
+///
+/// Returns `None` if `id` does not contain at least three digits.  The
+/// prefix is the **issuing serial code** assigned to a city / civil-registry
+/// office; it can be paired with an external lookup table to recover the
+/// place of issuance.
+///
+/// We deliberately do **not** ship a built-in prefix → city table: the
+/// authoritative dataset is sizeable, evolves as new offices open, and
+/// returning a stale or partial answer is worse than returning the raw
+/// prefix.
+///
+/// ```
+/// use parsitext::validators::national_id;
+///
+/// assert_eq!(national_id::issuance_prefix("0499370899").as_deref(), Some("049"));
+/// assert_eq!(national_id::issuance_prefix("12"), None);
+/// ```
+#[must_use]
+pub fn issuance_prefix(id: &str) -> Option<String> {
+    let digits = extract_digits(id);
+    if digits.len() < 3 {
+        return None;
+    }
+    Some(digits[..3].to_owned())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -121,5 +148,11 @@ mod tests {
     fn check_digit() {
         // First 9 digits of a known valid ID -> check digit 9
         assert_eq!(expected_check_digit("049937089"), Some(9));
+    }
+
+    #[test]
+    fn prefix_extraction() {
+        assert_eq!(issuance_prefix("0499370899").as_deref(), Some("049"));
+        assert_eq!(issuance_prefix("12"), None);
     }
 }
